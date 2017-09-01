@@ -2,11 +2,64 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>imgUpload</title>
-    <link rel="stylesheet" href="reset.css">
-    <link rel="stylesheet" href="imgupload.css">
+    <title>imgupload</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="jquery.min.js"></script>
 </head>
 <body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <table class="table" style="table-layout:fixed">
+                <thead>
+                <tr class="bg-primary">
+                    <th colspan="2" class="bold">imgupload</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <input class="btn btn-default" type="file" value="select img" id="inputBtn" value="选择图片">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <input class="btn btn-default" type="button" id="save" value="预览">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div id="imgBox">
 
+                        </div>
+                    </td>
+                    <td id="previewImgBox">
+
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" id="base64" class="text-muted" style="word-wrap: break-word;">
+
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="imgupload.js"></script>
+<script>
+    function saveCallBack(){
+
+    }
+//    初始化
+    var imgupload=new Imgupload({
+        uploadInputBtn:"#inputBtn",
+        imgBox:"#imgBox",
+        previewImgBox:"#previewImgBox",
+        width:"500",
+        height:"400"
+    },saveCallBack);
+</script>
 </body>
 </html>
