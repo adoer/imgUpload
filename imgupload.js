@@ -97,6 +97,9 @@
             }
         },
 
+        //绑定_$canvasDown 鼠标滚动放大 以及 鼠标按下拖动事件
+
+
         save:function(){
             saveCallBack && saveCallBack();
         }
