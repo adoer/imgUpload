@@ -53,7 +53,7 @@
                 reader.readAsDataURL(file);
                 reader.onload = function(e){
                     self.buildBox(this.result);
-                    self.scrollImg();
+                    self.bindCanvas();
                 }
             }
         },
@@ -107,12 +107,12 @@
         // 绘制canvas上的遮罩层
         drwaShade:function(){
             this._$canvas.ctx.beginPath();
-            this._$canvas.ctx.fillStyle="rgba(0,0,0,0.4)";
+            this._$canvas.ctx.fillStyle="rgba(0,0,0,0.3)";
             this._$canvas.ctx.fillRect(0, 0, this._$canvasW, this._$canvasH);
         },
 
-        //绑定_$canvasDown 鼠标滚动 图片 放大缩小
-        scrollImg:function(){
+        //绑定_$canvasDown 鼠标滚动图片 放大缩小, a按下鼠标拖动
+        bindCanvas:function(){
             var self=this;
             //放大缩小函数
             function zoomInOut(setSize,zoomFlag){
@@ -153,6 +153,20 @@
 //                window.event.returnValue=false;
                 return false;
             });
+
+            var mouseTag=false;
+            self._imgBox.mousedown(function(){
+                mouseTag=true;
+            });
+            self._imgBox.mouseup(function(){
+                mouseTag=false;
+            });
+
+            $(document).on("mousemove",''+self._imgBox.selector+'',function(e){
+                if(!mouseTag) return false;
+                console.log(e.pageX+":"+e.pageX);
+            });
+
         },
 
         save:function(){
