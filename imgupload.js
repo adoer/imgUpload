@@ -15,7 +15,12 @@
         _imgBox:null,
         _previewImgBox:null,
         _uploadInputBtn:null,
-        _$canvasDown: null,
+
+        _$canvas:null,
+        _$canvasW:null,
+        _$canvasH:null,
+        _$canvas2d:null,
+
         _$canvasUp: null,
         _img:null,
         _imgScale:0,
@@ -48,6 +53,7 @@
                 reader.readAsDataURL(file);
                 reader.onload = function(e){
                     self.buildBox(this.result);
+                    self.scrollImg();
                 }
             }
         },
@@ -80,25 +86,74 @@
                     "width":self._box_width,
                     "height":self._box_height
                 });
-                var canvasWidth=self._box_width-parseInt(self._imgBox.css("border-width"))*2;
-                var canvasHeight=self._box_width-parseInt(self._imgBox.css("border-width"))*2;
-                var $canvas=$('<canvas ' +
-                            'width="' + canvasWidth  + '"height="' + canvasHeight + '">' +
+                self._$canvasW=self._box_width-parseInt(self._imgBox.css("border-width"))*2;
+                self._$canvasH=self._box_width-parseInt(self._imgBox.css("border-width"))*2;
+                self._$canvas =$('<canvas ' +
+                            'width="' + self._$canvasW  + '"height="' + self._$canvasH + '">' +
                         '</canvas>');
-                self._imgBox.append($canvas);
-                var $ctx = $canvas[0].getContext('2d');
-                $ctx.drawImage(self._img, canvasWidth/2-self._img.width/2, canvasHeight/2-self._img.height/2, self._img.width, self._img.height);
-                //裁剪区域透明
-                $ctx.beginPath();
-                $ctx.fillStyle="rgba(0,0,0,0.4)";
-                $ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-                self._$canvasDown = $canvas;
+                self._imgBox.append(self._$canvas);
+                self._$canvas.ctx = self._$canvas[0].getContext('2d');
+                self._$canvas.ctx.drawImage(self._img, self._$canvasW/2-self._img.width/2, self._$canvasH/2-self._img.height/2, self._img.width, self._img.height);
 
+                // 绘制canvas上的遮罩层
+                self.drwaShade();
             }
         },
 
-        //绑定_$canvasDown 鼠标滚动放大 以及 鼠标按下拖动事件
+         //清除画布
+        clearCanvas:function () {
+            this._$canvas.ctx.clearRect(0, 0, this._$canvasW,this._$canvasH);
+        },
+        // 绘制canvas上的遮罩层
+        drwaShade:function(){
+            this._$canvas.ctx.beginPath();
+            this._$canvas.ctx.fillStyle="rgba(0,0,0,0.4)";
+            this._$canvas.ctx.fillRect(0, 0, this._$canvasW, this._$canvasH);
+        },
 
+        //绑定_$canvasDown 鼠标滚动 图片 放大缩小
+        scrollImg:function(){
+            var self=this;
+            //放大缩小函数
+            function zoomInOut(setSize,zoomFlag){
+                var size=zoomFlag===true?setSize:-setSize;
+                var imgW=self._img.width+size;
+                var imgH=imgW/self._imgScale;
+                self._img.width=imgW;
+                self._img.height=imgH;
+                var imgX=0,imgY;
+                if(imgW<self._$canvasW){
+                    imgX=(self._$canvasW-imgW)/2;
+                    imgY=(self._$canvasH-imgH)/2;
+                }else{
+                    imgX=-(imgW-self._$canvasW)/2;
+                    imgY=-(imgH-self._$canvasH)/2;
+                }
+                // 清除上一次绘制的图片区域
+                self.clearCanvas();
+                //绘制新的图片区域
+                self._$canvas.ctx.drawImage(self._img,imgX,imgY,imgW,imgH);
+                // 绘制canvas上的遮罩层
+                self.drwaShade();
+            }
+            // jquery 兼容的滚轮事件
+            $(document).on("mousewheel DOMMouseScroll",''+self._imgBox.selector+'', function (e) {
+
+                var delta = (e.originalEvent.wheelDelta && (e.originalEvent.wheelDelta > 0 ? 1 : -1)) ||  // chrome & ie
+                    (e.originalEvent.detail && (e.originalEvent.detail > 0 ? -1 : 1));              // firefox
+
+                if (delta > 0) {
+                    // 向上滚
+                    zoomInOut(10,true);
+                } else if (delta < 0) {
+                    // 向下滚
+                    console.log("wheeldown");
+                    zoomInOut(10,false);
+                }
+//                window.event.returnValue=false;
+                return false;
+            });
+        },
 
         save:function(){
             saveCallBack && saveCallBack();
