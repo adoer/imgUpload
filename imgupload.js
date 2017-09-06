@@ -147,26 +147,46 @@
                     zoomInOut(10,true);
                 } else if (delta < 0) {
                     // 向下滚
-                    console.log("wheeldown");
+                    // console.log("wheeldown");
                     zoomInOut(10,false);
                 }
 //                window.event.returnValue=false;
                 return false;
             });
 
+            //绑定事件
             var mouseTag=false;
-            self._imgBox.mousedown(function(){
-                mouseTag=true;
+            //鼠标上一次的X,Y值用于实时计算鼠标移动的偏移量
+            var prevX=0,prevY=0;
+            var x=0,y=0;
+            self._imgBox.on({
+                mousedown:function(){
+                    mouseTag=true;
+                },
+                mouseup:function(){
+                    mouseTag=false;
+                },
+                //修复了 按下鼠标拖出元素外以后再次回来还是按下mousedown的状态
+                //解决方案 鼠标移出元素外 那么就更改状态为mouseup状态
+                mouseleave:function(){
+                    mouseTag=false;
+                },
+                mousemove:function(e){
+                    if(!mouseTag) return false;
+                    //获取偏移量 重新绘制canvas
+                    x=e.pageX-prevX;
+                    y=e.pageY-prevY;
+                    prevX=e.pageX;
+                    prevY=e.pageY;
+                    console.log("e.pageX-prevX="+x+"——"+"e.pageY-prevY="+y);
+                    // 清除上一次绘制的图片区域
+                    self.clearCanvas();
+                    //绘制新的图片区域
+                    self._$canvas.ctx.drawImage(self._img,imgX,imgY,imgW,imgH);
+                    // 绘制canvas上的遮罩层
+                    self.drwaShade();
+                }
             });
-            self._imgBox.mouseup(function(){
-                mouseTag=false;
-            });
-
-            $(document).on("mousemove",''+self._imgBox.selector+'',function(e){
-                if(!mouseTag) return false;
-                console.log(e.pageX+":"+e.pageX);
-            });
-
         },
 
         save:function(){
