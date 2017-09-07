@@ -123,14 +123,22 @@
                 self._$canvasCrop.ctx.fillStyle="rgba(224,57,224,0.3)";
                 self._$canvasCrop.ctx.fillRect(0, 0, self._imgCropSize, self._imgCropSize);
 
-                self._$canvasCrop.ctx.drawImage(self._img, self._img_sx, self._img_sy, self._img.width, self._img.height);
-
+                self._imgCrop_sx=-((self._$canvasW - self._imgCropSize)/2-self._img_sx);
+                self._imgCrop_sy=-((self._$canvasH - self._imgCropSize)/2-self._img_sy);
+                if(self._img_sx<0){
+                    self._imgCrop_sx=(self._$canvasW - self._imgCropSize)/2+self._img_sx
+                }
+                if(self._img_sy<0){
+                    self._imgCrop_sy=(self._$canvasH - self._imgCropSize)/2+self._img_sy;
+                }
+                self._$canvasCrop.ctx.drawImage(self._img, self._imgCrop_sx, self._imgCrop_sy, self._img.width, self._img.height);
             }
         },
 
          //清除画布
         clearCanvas:function () {
             this._$canvas.ctx.clearRect(0, 0, this._$canvasW,this._$canvasH);
+            this._$canvasCrop.ctx.clearRect(0, 0, this._imgCropSize,this._imgCropSize);
         },
         // 绘制canvas上的遮罩层
         drwaShade:function(){
@@ -223,6 +231,16 @@
                     self._$canvas.ctx.drawImage(self._img,self._img_sx,self._img_sy,self._imgW,self._imgH);
                     // 绘制canvas上的遮罩层
                     self.drwaShade();
+
+                    self._imgCrop_sx=-((self._$canvasW - self._imgCropSize)/2-self._img_sx);
+                    self._imgCrop_sy=-((self._$canvasH - self._imgCropSize)/2-self._img_sy);
+                    if(self._img_sx<0){
+                        self._imgCrop_sx=-((self._$canvasW - self._imgCropSize)/2+self._img_sx)
+                    }
+                    if(self._img_sy<0){
+                        self._imgCrop_sy=-((self._$canvasH - self._imgCropSize)/2+self._img_sy);
+                    }
+                    self._$canvasCrop.ctx.drawImage(self._img, self._imgCrop_sx, self._imgCrop_sy, self._img.width, self._img.height);
                 }
             });
         },
