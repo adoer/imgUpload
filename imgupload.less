@@ -1,10 +1,17 @@
 #imgBox {
-  border: 1px solid red;
+  border: 2px solid red;
+  position: relative;
   cursor: move;
   -moz-user-select: none;
   -o-user-select: none;
-  -khtml-user-select: none; /* you could also put this in a class */
-  -webkit-user-select: none; /* and add the CSS class here instead */
+  -khtml-user-select: none;
+  -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  canvas{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform:translate(-50%,-50%);
+  }
 }

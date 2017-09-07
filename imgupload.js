@@ -1,8 +1,8 @@
 +function($){
     "use strict";
     var Imgupload=function(opt,saveCallBack){
-        this._box_width=opt.imgBoxSize;
-        this._box_height=opt.imgBoxSize;
+        this._imgBoxSize=opt.imgBoxSize;
+        this._imgCropSize=opt.imgCropSize;
         this._uploadInputBtn=$(opt.uploadInputBtn);
         this._imgBox=$(opt.imgBox);
         this._previewImgBox=$(opt.previewImgBox);
@@ -10,26 +10,33 @@
     }
     Imgupload.prototype={
         constructor:Imgupload,
-        _box_width:0,
-        _box_height:0,
+        _imgBoxSize:0,
         _imgBox:null,
         _previewImgBox:null,
         _uploadInputBtn:null,
 
         _$canvas:null,
-        _$canvasW:null,
-        _$canvasH:null,
+        _$canvasW:0,
+        _$canvasH:0,
         _$canvas2d:null,
 
-        _$canvasUp: null,
-        _img:null,
         _imgScale:0,
-        _imgCrop:{
-            width:0,
-            hieght:0,
-            x:0,
-            y:0
-        },
+
+        _img:null,
+        //剪裁的x y坐标
+        _img_sx:0,
+        _img_sy:0,
+        // 图片的高宽
+        _imgW:0,
+        _imgH:0,
+
+        _imgCropSize:0,
+        _$canvasCrop:null,
+        _imgCrop_sx:0,
+        _imgCrop_sy:0,
+        _imgCropW:0,
+        _imgCropH:0,
+
         _init:function (){
             var self=this;
             self.readFile();
@@ -71,32 +78,53 @@
                 //设置drawImage 合适的 高宽使图片刚好不变形的显示在canvas内
                 //检查图片尺寸 并调整以适应
                 if(self._imgScale>1){
-                    if(self._img.width>self._box_width){
-                        self._img.width=self._box_width;
+                    if(self._img.width>self._imgBoxSize){
+                        self._img.width=self._imgBoxSize;
                         self._img.height=self._img.width/self._imgScale;
                     }
                 }else{
-                    if(self._img.height>self._box_height){
-                        self._img.height=self._box_height;
+                    if(self._img.height>self._imgBoxSize){
+                        self._img.height=self._imgBoxSize;
                         self._img.width=self._img.height*self._imgScale;
                     }
                 }
                 //设置图片容器高宽
                 self._imgBox.css({
-                    "width":self._box_width,
-                    "height":self._box_height
+                    "width":self._imgBoxSize,
+                    "height":self._imgBoxSize
                 });
-                self._$canvasW=self._box_width-parseInt(self._imgBox.css("border-width"))*2;
-                self._$canvasH=self._box_width-parseInt(self._imgBox.css("border-width"))*2;
+                self._$canvasW=self._imgBoxSize-parseInt(self._imgBox.css("border-width"))*2;
+                self._$canvasH=self._imgBoxSize-parseInt(self._imgBox.css("border-width"))*2;
                 self._$canvas =$('<canvas ' +
                             'width="' + self._$canvasW  + '"height="' + self._$canvasH + '">' +
                         '</canvas>');
                 self._imgBox.append(self._$canvas);
                 self._$canvas.ctx = self._$canvas[0].getContext('2d');
-                self._$canvas.ctx.drawImage(self._img, self._$canvasW/2-self._img.width/2, self._$canvasH/2-self._img.height/2, self._img.width, self._img.height);
 
+                //记录初始的self._img_sx self._img_sy
+                self._img_sx=self._$canvasW/2-self._img.width/2;
+                self._img_sy=self._$canvasW/2-self._img.height/2;
+                //记录初始的图片宽高
+                self._imgW=self._img.width;
+                self._imgH=self._img.height;
+
+                //绘制图片
+                self._$canvas.ctx.drawImage(self._img, self._img_sx, self._img_sy, self._img.width, self._img.height);
                 // 绘制canvas上的遮罩层
                 self.drwaShade();
+
+                //添加剪裁框 并绘制剪裁图像
+                self._$canvasCrop =$('<canvas ' +
+                    'width="' + self._imgCropSize  + '"height="' + self._imgCropSize + '">' +
+                    '</canvas>');
+                self._imgBox.append(self._$canvasCrop);
+                self._$canvasCrop.ctx = self._$canvasCrop[0].getContext('2d');
+                self._$canvasCrop.ctx.beginPath();
+                self._$canvasCrop.ctx.fillStyle="rgba(224,57,224,0.3)";
+                self._$canvasCrop.ctx.fillRect(0, 0, self._imgCropSize, self._imgCropSize);
+
+                self._$canvasCrop.ctx.drawImage(self._img, self._img_sx, self._img_sy, self._img.width, self._img.height);
+
             }
         },
 
@@ -116,25 +144,29 @@
             var self=this;
             //放大缩小函数
             function zoomInOut(setSize,zoomFlag){
-                var size=zoomFlag===true?setSize:-setSize;
-                var imgW=self._img.width+size;
-                var imgH=imgW/self._imgScale;
-                self._img.width=imgW;
-                self._img.height=imgH;
-                var imgX=0,imgY;
-                if(imgW<self._$canvasW){
-                    imgX=(self._$canvasW-imgW)/2;
-                    imgY=(self._$canvasH-imgH)/2;
+                var size;
+                if(zoomFlag===true){
+                    size=setSize;
+                    self._img_sx=self._img_sx-setSize/2;
+                    self._img_sy=self._img_sy-setSize/2;
                 }else{
-                    imgX=-(imgW-self._$canvasW)/2;
-                    imgY=-(imgH-self._$canvasH)/2;
+                    size=-setSize;
+                    self._img_sx=self._img_sx+setSize/2;
+                    self._img_sy=self._img_sy+setSize/2;
                 }
+                self._imgW=self._img.width+size;
+                self._imgH=self._imgW/self._imgScale;
+                self._img.width=self._imgW;
+                self._img.height=self._imgH;
+
                 // 清除上一次绘制的图片区域
                 self.clearCanvas();
                 //绘制新的图片区域
-                self._$canvas.ctx.drawImage(self._img,imgX,imgY,imgW,imgH);
-                // 绘制canvas上的遮罩层
+                self._$canvas.ctx.drawImage(self._img,self._img_sx,self._img_sy,self._imgW,self._imgH);
+                //绘制canvas上的遮罩层
                 self.drwaShade();
+                //绘制剪裁框
+
             }
             // jquery 兼容的滚轮事件
             $(document).on("mousewheel DOMMouseScroll",''+self._imgBox.selector+'', function (e) {
@@ -158,10 +190,12 @@
             var mouseTag=false;
             //鼠标上一次的X,Y值用于实时计算鼠标移动的偏移量
             var prevX=0,prevY=0;
-            var x=0,y=0;
             self._imgBox.on({
-                mousedown:function(){
+                mousedown:function(e){
                     mouseTag=true;
+                    //按下的时候记录第一个坐标值
+                    prevX=e.pageX;
+                    prevY=e.pageY;
                 },
                 mouseup:function(){
                     mouseTag=false;
@@ -174,15 +208,19 @@
                 mousemove:function(e){
                     if(!mouseTag) return false;
                     //获取偏移量 重新绘制canvas
-                    x=e.pageX-prevX;
-                    y=e.pageY-prevY;
+                    var cX=e.pageX-prevX;
+                    var cY=e.pageY-prevY;
+                    console.log(cX+"-"+cY);
+                    //更新prevX prevY
                     prevX=e.pageX;
                     prevY=e.pageY;
-                    console.log("e.pageX-prevX="+x+"——"+"e.pageY-prevY="+y);
+                    //更新self._img_sx self._img_sy
+                    self._img_sx+=cX;
+                    self._img_sy+=cY;
                     // 清除上一次绘制的图片区域
                     self.clearCanvas();
                     //绘制新的图片区域
-                    self._$canvas.ctx.drawImage(self._img,imgX,imgY,imgW,imgH);
+                    self._$canvas.ctx.drawImage(self._img,self._img_sx,self._img_sy,self._imgW,self._imgH);
                     // 绘制canvas上的遮罩层
                     self.drwaShade();
                 }
