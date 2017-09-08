@@ -10,7 +10,7 @@
 <body>
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-10 col-md-offset-1">
+        <div class="col-md-8 col-md-offset-2">
             <table class="table" style="table-layout:fixed">
                 <thead>
                 <tr class="bg-primary">
@@ -56,12 +56,14 @@
 //    初始化
     var imgupload=new Imgupload({
         uploadInputBtn:"#inputBtn",
-        previewImgBox:"#previewImgBox",
+        previewBox:"#previewImgBox",
         imgBox:"#imgBox",
         //容纳图片的容器大小设置
         imgBoxSize:400,
         //图片剪裁区域大小校设置
-        imgCropSize:200
+        imgCropSize:200,
+        //剪裁图片预览容器大小
+        previewBoxSize:200
     },saveCallBack);
 </script>
 </body>

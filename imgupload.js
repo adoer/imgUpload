@@ -3,16 +3,17 @@
     var Imgupload=function(opt,saveCallBack){
         this._imgBoxSize=opt.imgBoxSize;
         this._imgCropSize=opt.imgCropSize;
+        this._imgPreSize=opt.previewBoxSize;
         this._uploadInputBtn=$(opt.uploadInputBtn);
         this._imgBox=$(opt.imgBox);
-        this._previewImgBox=$(opt.previewImgBox);
+        this._previewBox=$(opt.previewBox);
         this._init();
     }
     Imgupload.prototype={
         constructor:Imgupload,
         _imgBoxSize:0,
         _imgBox:null,
-        _previewImgBox:null,
+        _previewBox:null,
         _uploadInputBtn:null,
 
         _$canvas:null,
@@ -37,9 +38,58 @@
         _imgCropW:0,
         _imgCropH:0,
 
+        _$canvasPreview:null,
+        _imgPreSize:0,
+        _imgPre_sx:0,
+        _imgPre_sy:0,
+        _imgPreW:0,
+        _imgPreH:0,
+
         _init:function (){
             var self=this;
+            self.initCanvas();
             self.readFile();
+        },
+        //初始化图片容器，预览容器
+        initCanvas:function(){
+            var self=this;
+            //设置图片容器高宽
+            self._imgBox.css({
+                "width":self._imgBoxSize,
+                "height":self._imgBoxSize
+            });
+            self._$canvasW=self._imgBoxSize-parseInt(self._imgBox.css("border-width"))*2;
+            self._$canvasH=self._imgBoxSize-parseInt(self._imgBox.css("border-width"))*2;
+            self._$canvas =$('<canvas ' +
+                'width="' + self._$canvasW  + '"height="' + self._$canvasH + '">' +
+                '</canvas>');
+            self._imgBox.append(self._$canvas);
+            self._$canvas.ctx = self._$canvas[0].getContext('2d');
+            // 绘制canvas上的遮罩层
+            self.drwaShade();
+
+            //添加剪裁框 并绘制默认剪裁框
+            self._$canvasCrop =$('<canvas ' +
+                'width="' + self._imgCropSize  + '"height="' + self._imgCropSize + '">' +
+                '</canvas>');
+            self._imgBox.append(self._$canvasCrop);
+            self._$canvasCrop.ctx = self._$canvasCrop[0].getContext('2d');
+
+            self._$canvasCrop.ctx.beginPath();
+            self._$canvasCrop.ctx.fillStyle="rgba(255,255,255,0.9)";
+            self._$canvasCrop.ctx.fillRect(0, 0, self._imgCropSize, self._imgCropSize);
+
+            // 绘制预览canvas
+            self._$canvasPreview =$('<canvas ' +
+                'width="' + self._imgPreSize  + '"height="' + self._imgPreSize + '">' +
+                '</canvas>');
+            self._previewBox.append(self._$canvasPreview);
+            self._$canvasPreview.ctx = self._$canvasPreview[0].getContext('2d');
+
+            self._$canvasPreview.ctx.beginPath();
+            self._$canvasPreview.ctx.fillStyle="rgba(0,0,0,0.3)";
+            self._$canvasPreview.ctx.fillRect(0, 0, self._imgPreSize, self._imgPreSize);
+
         },
         //读取图片
         readFile:function(){
@@ -64,10 +114,10 @@
                 }
             }
         },
-        //生成容器
+        //生成预览图
         buildBox:function(src){
             var self=this;
-            self._imgBox.empty();
+            // self._imgBox.empty();
             self._img=new Image();
             self._img.src = src;
             self._img.onload=function(){
@@ -88,18 +138,6 @@
                         self._img.width=self._img.height*self._imgScale;
                     }
                 }
-                //设置图片容器高宽
-                self._imgBox.css({
-                    "width":self._imgBoxSize,
-                    "height":self._imgBoxSize
-                });
-                self._$canvasW=self._imgBoxSize-parseInt(self._imgBox.css("border-width"))*2;
-                self._$canvasH=self._imgBoxSize-parseInt(self._imgBox.css("border-width"))*2;
-                self._$canvas =$('<canvas ' +
-                            'width="' + self._$canvasW  + '"height="' + self._$canvasH + '">' +
-                        '</canvas>');
-                self._imgBox.append(self._$canvas);
-                self._$canvas.ctx = self._$canvas[0].getContext('2d');
 
                 //记录初始的self._img_sx self._img_sy
                 self._img_sx=self._$canvasW/2-self._img.width/2;
@@ -108,26 +146,29 @@
                 self._imgW=self._img.width;
                 self._imgH=self._img.height;
 
+                //清除画布
+                self.clearCanvas();
+                // debugger
                 //绘制图片
                 self._$canvas.ctx.drawImage(self._img, self._img_sx, self._img_sy, self._img.width, self._img.height);
                 // 绘制canvas上的遮罩层
                 self.drwaShade();
 
-                //添加剪裁框 并绘制剪裁图像
-                self._$canvasCrop =$('<canvas ' +
-                    'width="' + self._imgCropSize  + '"height="' + self._imgCropSize + '">' +
-                    '</canvas>');
-                self._imgBox.append(self._$canvasCrop);
-                self._$canvasCrop.ctx = self._$canvasCrop[0].getContext('2d');
                 // 绘制剪裁的canvas
                 self.drawCanvasCrop();
             }
         },
-
          //清除画布
         clearCanvas:function () {
-            this._$canvas.ctx.clearRect(0, 0, this._$canvasW,this._$canvasH);
-            this._$canvasCrop.ctx.clearRect(0, 0, this._imgCropSize,this._imgCropSize);
+            if(this._$canvas){
+                this._$canvas.ctx.clearRect(0, 0, this._$canvasW,this._$canvasH);
+            }
+            if(this._$canvasCrop){
+                this._$canvasCrop.ctx.clearRect(0, 0, this._imgCropSize,this._imgCropSize);
+            }
+            if(this._$canvasPreview){
+                this._$canvasPreview.ctx.clearRect(0, 0, this._imgPreSize, this._imgPreSize);
+            }
         },
         // 绘制canvas上的遮罩层
         drwaShade:function(){
@@ -167,8 +208,6 @@
                 self._img_sy=(self._$canvasH - self._imgCropSize)/2;
             }
         },
-
-
         //绑定_$canvasDown 鼠标滚动图片 放大缩小, a按下鼠标拖动
         bindCanvas:function(){
             var self=this;
@@ -274,7 +313,6 @@
                 }
             });
         },
-
         save:function(){
             saveCallBack && saveCallBack();
         }
