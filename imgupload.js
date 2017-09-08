@@ -125,6 +125,16 @@
                 drawImg();
             };
             function drawImg() {
+                // 检测图片的大小是否小于剪裁框 如果小于提示 并阻止下一步操作
+                if(self._img.width<self._imgPreSize){
+                    alert("图片宽度不能小于"+self._imgPreSize+"px");
+                    return false;
+                }
+                if(self._img.height<self._imgPreSize){
+                    alert("图片高度不能小于"+self._imgPreSize+"px");
+                    return false;
+                }
+
                 //设置drawImage 合适的 高宽使图片刚好不变形的显示在canvas内
                 //检查图片尺寸 并调整以适应
                 if(self._imgScale>1){
@@ -148,7 +158,6 @@
 
                 //清除画布
                 self.clearCanvas();
-                // debugger
                 //绘制图片
                 self._$canvas.ctx.drawImage(self._img, self._img_sx, self._img_sy, self._img.width, self._img.height);
                 // 绘制canvas上的遮罩层
@@ -156,6 +165,9 @@
 
                 // 绘制剪裁的canvas
                 self.drawCanvasCrop();
+
+                //绘制预览的canvas
+                self.drawCanvasPreview();
             }
         },
          //清除画布
@@ -177,6 +189,10 @@
             this._$canvas.ctx.fillRect(0, 0, this._$canvasW, this._$canvasH);
         },
 
+        //绘制预览的canvas
+        drawCanvasPreview:function(){
+            this._$canvasPreview.ctx.drawImage(this._img, this._imgCrop_sx, this._imgCrop_sy, this._img.width, this._img.height);
+        },
         // 绘制剪裁的canvas
         drawCanvasCrop:function(){
             var self=this;
@@ -249,7 +265,8 @@
                 self.drwaShade();
                 // 绘制剪裁的canvas
                 self.drawCanvasCrop();
-
+                //绘制预览的canvas
+                self.drawCanvasPreview();
             }
             // jquery 兼容的滚轮事件
             $(document).on("mousewheel DOMMouseScroll",''+self._imgBox.selector+'', function (e) {
@@ -310,6 +327,8 @@
                     self.drwaShade();
                     // 绘制剪裁的canvas
                     self.drawCanvasCrop();
+                    //绘制预览的canvas
+                    self.drawCanvasPreview();
                 }
             });
         },
