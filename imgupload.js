@@ -119,19 +119,8 @@
                     '</canvas>');
                 self._imgBox.append(self._$canvasCrop);
                 self._$canvasCrop.ctx = self._$canvasCrop[0].getContext('2d');
-                self._$canvasCrop.ctx.beginPath();
-                self._$canvasCrop.ctx.fillStyle="rgba(224,57,224,0.3)";
-                self._$canvasCrop.ctx.fillRect(0, 0, self._imgCropSize, self._imgCropSize);
-
-                self._imgCrop_sx=-((self._$canvasW - self._imgCropSize)/2-self._img_sx);
-                self._imgCrop_sy=-((self._$canvasH - self._imgCropSize)/2-self._img_sy);
-                if(self._img_sx<0){
-                    self._imgCrop_sx=(self._$canvasW - self._imgCropSize)/2+self._img_sx
-                }
-                if(self._img_sy<0){
-                    self._imgCrop_sy=(self._$canvasH - self._imgCropSize)/2+self._img_sy;
-                }
-                self._$canvasCrop.ctx.drawImage(self._img, self._imgCrop_sx, self._imgCrop_sy, self._img.width, self._img.height);
+                // 绘制剪裁的canvas
+                self.drawCanvasCrop();
             }
         },
 
@@ -147,6 +136,39 @@
             this._$canvas.ctx.fillRect(0, 0, this._$canvasW, this._$canvasH);
         },
 
+        // 绘制剪裁的canvas
+        drawCanvasCrop:function(){
+            var self=this;
+            self._imgCrop_sx=-((self._$canvasW - self._imgCropSize)/2-self._img_sx);
+            self._imgCrop_sy=-((self._$canvasH - self._imgCropSize)/2-self._img_sy);
+            if(self._img_sx<0){
+                self._imgCrop_sx=-((self._$canvasW - self._imgCropSize)/2-self._img_sx)
+            }
+            if(self._img_sy<0){
+                self._imgCrop_sy=-((self._$canvasH - self._imgCropSize)/2-self._img_sy);
+            }
+            self._$canvasCrop.ctx.drawImage(self._img, self._imgCrop_sx, self._imgCrop_sy, self._img.width, self._img.height);
+        },
+        //移动 或 者放大缩小 检测图片是否超出剪裁框
+        checkCanvasXY:function(){
+            var self=this;
+            //检测_img_sx 不让图片移除剪裁框范围以内
+            if((-self._img_sx+(self._$canvasW - self._imgCropSize)/2+self._imgCropSize)>self._imgW){
+                self._img_sx=-(self._imgW-self._imgCropSize-(self._$canvasW - self._imgCropSize)/2);
+            }
+            if(self._img_sx>(self._$canvasW - self._imgCropSize)/2){
+                self._img_sx=(self._$canvasW - self._imgCropSize)/2;
+            }
+            //检测_img_sy 不让图片移除剪裁框范围以内
+            if((-self._img_sy+(self._$canvasH - self._imgCropSize)/2+self._imgCropSize)>self._imgH){
+                self._img_sy=-(self._imgH-self._imgCropSize-(self._$canvasH - self._imgCropSize)/2);
+            }
+            if(self._img_sy>(self._$canvasH - self._imgCropSize)/2){
+                self._img_sy=(self._$canvasH - self._imgCropSize)/2;
+            }
+        },
+
+
         //绑定_$canvasDown 鼠标滚动图片 放大缩小, a按下鼠标拖动
         bindCanvas:function(){
             var self=this;
@@ -158,6 +180,20 @@
                     self._img_sx=self._img_sx-setSize/2;
                     self._img_sy=self._img_sy-setSize/2;
                 }else{
+                    //缩小的时候进行检测 _img_sx _img_sy 以免让图片缩小到检测框大小以内
+                    if(self._img_sx>(self._$canvasW - self._imgCropSize)/2){
+                        return false;
+                    }
+                    if((-self._img_sx+(self._$canvasW - self._imgCropSize)/2+self._imgCropSize)>self._imgW){
+                        return false;
+                    }
+                    if((-self._img_sy+(self._$canvasH - self._imgCropSize)/2+self._imgCropSize)>self._imgH){
+                        return false;
+                    }
+                    if(self._img_sy>(self._$canvasH - self._imgCropSize)/2){
+                        return false;
+                    }
+
                     size=-setSize;
                     self._img_sx=self._img_sx+setSize/2;
                     self._img_sy=self._img_sy+setSize/2;
@@ -166,14 +202,14 @@
                 self._imgH=self._imgW/self._imgScale;
                 self._img.width=self._imgW;
                 self._img.height=self._imgH;
-
                 // 清除上一次绘制的图片区域
                 self.clearCanvas();
                 //绘制新的图片区域
                 self._$canvas.ctx.drawImage(self._img,self._img_sx,self._img_sy,self._imgW,self._imgH);
                 //绘制canvas上的遮罩层
                 self.drwaShade();
-                //绘制剪裁框
+                // 绘制剪裁的canvas
+                self.drawCanvasCrop();
 
             }
             // jquery 兼容的滚轮事件
@@ -218,29 +254,23 @@
                     //获取偏移量 重新绘制canvas
                     var cX=e.pageX-prevX;
                     var cY=e.pageY-prevY;
-                    console.log(cX+"-"+cY);
+                    // console.log(cX+"-"+cY);
                     //更新prevX prevY
                     prevX=e.pageX;
                     prevY=e.pageY;
                     //更新self._img_sx self._img_sy
                     self._img_sx+=cX;
                     self._img_sy+=cY;
+                    // 检测_img_sx _img_sy 不让图片移除剪裁框范围以内
+                    self.checkCanvasXY();
                     // 清除上一次绘制的图片区域
                     self.clearCanvas();
                     //绘制新的图片区域
                     self._$canvas.ctx.drawImage(self._img,self._img_sx,self._img_sy,self._imgW,self._imgH);
                     // 绘制canvas上的遮罩层
                     self.drwaShade();
-
-                    self._imgCrop_sx=-((self._$canvasW - self._imgCropSize)/2-self._img_sx);
-                    self._imgCrop_sy=-((self._$canvasH - self._imgCropSize)/2-self._img_sy);
-                    if(self._img_sx<0){
-                        self._imgCrop_sx=-((self._$canvasW - self._imgCropSize)/2+self._img_sx)
-                    }
-                    if(self._img_sy<0){
-                        self._imgCrop_sy=-((self._$canvasH - self._imgCropSize)/2+self._img_sy);
-                    }
-                    self._$canvasCrop.ctx.drawImage(self._img, self._imgCrop_sx, self._imgCrop_sy, self._img.width, self._img.height);
+                    // 绘制剪裁的canvas
+                    self.drawCanvasCrop();
                 }
             });
         },
