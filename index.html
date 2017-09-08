@@ -52,6 +52,14 @@
 <script>
     function saveCallBack(base64){
         $("#base64 img").attr("src",base64);
+        //最终把此base64传给后端
+        /**
+         $.ajax({
+				data: {
+					base64: base64
+				}
+			})
+         **/
     }
 //    初始化
     var imgupload=new Imgupload({
