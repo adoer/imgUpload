@@ -40,7 +40,7 @@
                 </tr>
                 <tr>
                     <td colspan="2" id="base64" class="text-muted" style="word-wrap: break-word;">
-
+                        <img src="" alt="">
                     </td>
                 </tr>
                 </tbody>
@@ -50,8 +50,8 @@
 </div>
 <script src="imgupload.js"></script>
 <script>
-    function saveCallBack(){
-
+    function saveCallBack(base64){
+        $("#base64 img").attr("src",base64);
     }
 //    初始化
     var imgupload=new Imgupload({

@@ -49,6 +49,9 @@
             var self=this;
             self.initCanvas();
             self.readFile();
+            $("#save").click(function(){
+                self.save();
+            });
         },
         //初始化图片容器，预览容器
         initCanvas:function(){
@@ -89,7 +92,9 @@
             self._$canvasPreview.ctx.beginPath();
             self._$canvasPreview.ctx.fillStyle="rgba(0,0,0,0.3)";
             self._$canvasPreview.ctx.fillRect(0, 0, self._imgPreSize, self._imgPreSize);
-
+            //添加说明文字 预览框
+            self._$canvasPreview.ctx.font="40px Arial";
+            self._$canvasPreview.ctx.fillText("预览框",40,100);
         },
         //读取图片
         readFile:function(){
@@ -224,7 +229,7 @@
                 self._img_sy=(self._$canvasH - self._imgCropSize)/2;
             }
         },
-        //绑定_$canvasDown 鼠标滚动图片 放大缩小, a按下鼠标拖动
+        //绑定_$canvasDown 鼠标滚动图片 放大缩小, 按下鼠标拖动
         bindCanvas:function(){
             var self=this;
             //放大缩小函数
@@ -333,7 +338,8 @@
             });
         },
         save:function(){
-            saveCallBack && saveCallBack();
+            var base64Url =this._$canvasPreview[0].toDataURL('image/jpeg');
+            saveCallBack && saveCallBack(base64Url);
         }
     }
     window.Imgupload = Imgupload;
