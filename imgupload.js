@@ -93,8 +93,8 @@
             self._$canvasPreview.ctx.fillStyle="rgba(0,0,0,0.3)";
             self._$canvasPreview.ctx.fillRect(0, 0, self._imgPreSize, self._imgPreSize);
             //添加说明文字 预览框
-            self._$canvasPreview.ctx.font="40px Arial";
-            self._$canvasPreview.ctx.fillText("预览框",40,100);
+            self._$canvasPreview.ctx.font="16px Microsoft YaHei";
+            self._$canvasPreview.ctx.fillText("预览框",6,20);
         },
         //读取图片
         readFile:function(){
