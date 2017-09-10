@@ -61,8 +61,8 @@
                 "width":self._imgBoxSize,
                 "height":self._imgBoxSize
             });
-            self._$canvasW=self._imgBoxSize-parseInt(self._imgBox.css("border-width"))*2;
-            self._$canvasH=self._imgBoxSize-parseInt(self._imgBox.css("border-width"))*2;
+            self._$canvasW=self._imgBoxSize;
+            self._$canvasH=self._imgBoxSize;
             self._$canvas =$('<canvas ' +
                 'width="' + self._$canvasW  + '"height="' + self._$canvasH + '">' +
                 '</canvas>');
