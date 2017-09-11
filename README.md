@@ -29,5 +29,6 @@
         previewBoxSize:200
     },saveCallBack);
 ```
+*内部代码详细可根据需要修改*
 # 演示地址
 [演示地址](http://www.xerduo.com/2017/09/11/imgUpload/)
