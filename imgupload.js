@@ -215,23 +215,24 @@
         checkCanvasXY:function(){
             var self=this;
             //检测_img_sx 不让图片移除剪裁框范围以内
-            if((-self._img_sx+(self._$canvasW - self._imgCropSize)/2+self._imgCropSize)>self._imgW){
+            if((-self._img_sx+(self._$canvasW - self._imgCropSize)/2+self._imgCropSize)>=self._imgW){
                 self._img_sx=-(self._imgW-self._imgCropSize-(self._$canvasW - self._imgCropSize)/2);
             }
-            if(self._img_sx>(self._$canvasW - self._imgCropSize)/2){
+            if(self._img_sx>=(self._$canvasW - self._imgCropSize)/2){
                 self._img_sx=(self._$canvasW - self._imgCropSize)/2;
             }
             //检测_img_sy 不让图片移除剪裁框范围以内
-            if((-self._img_sy+(self._$canvasH - self._imgCropSize)/2+self._imgCropSize)>self._imgH){
+            if((-self._img_sy+(self._$canvasH - self._imgCropSize)/2+self._imgCropSize)>=self._imgH){
                 self._img_sy=-(self._imgH-self._imgCropSize-(self._$canvasH - self._imgCropSize)/2);
             }
-            if(self._img_sy>(self._$canvasH - self._imgCropSize)/2){
+            if(self._img_sy>=(self._$canvasH - self._imgCropSize)/2){
                 self._img_sy=(self._$canvasH - self._imgCropSize)/2;
             }
         },
         //绑定_$canvasDown 鼠标滚动图片 放大缩小, 按下鼠标拖动
         bindCanvas:function(){
             var self=this;
+            var zoomSize=10;
             //放大缩小函数
             function zoomInOut(setSize,zoomFlag){
                 var size;
@@ -251,6 +252,13 @@
                         return false;
                     }
                     if(self._img_sy>=(self._$canvasH - self._imgCropSize)/2){
+                        return false;
+                    }
+                    //self._img_sx 减去(self._$canvasW- self._imgCropSize)/2 的值小于
+                    if((self._$canvasW- self._imgCropSize)/2-self._img_sx<zoomSize){
+                        return false;
+                    }
+                    if((self._$canvasH- self._imgCropSize)/2-self._img_sy<zoomSize){
                         return false;
                     }
 
@@ -281,11 +289,11 @@
 
                 if (delta > 0) {
                     // 向上滚
-                    zoomInOut(10,true);
+                    zoomInOut(zoomSize,true);
                 } else if (delta < 0) {
                     // 向下滚
                     // console.log("wheeldown");
-                    zoomInOut(10,false);
+                    zoomInOut(zoomSize,false);
                 }
 //                window.event.returnValue=false;
                 return false;
