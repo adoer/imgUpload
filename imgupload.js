@@ -241,16 +241,16 @@
                     self._img_sy=self._img_sy-setSize/2;
                 }else{
                     //缩小的时候进行检测 _img_sx _img_sy 以免让图片缩小到检测框大小以内
-                    if(self._img_sx>(self._$canvasW - self._imgCropSize)/2){
+                    if(self._img_sx>=(self._$canvasW - self._imgCropSize)/2){
                         return false;
                     }
-                    if((-self._img_sx+(self._$canvasW - self._imgCropSize)/2+self._imgCropSize)>self._imgW){
+                    if((-self._img_sx+(self._$canvasW - self._imgCropSize)/2+self._imgCropSize)>=self._imgW){
                         return false;
                     }
-                    if((-self._img_sy+(self._$canvasH - self._imgCropSize)/2+self._imgCropSize)>self._imgH){
+                    if((-self._img_sy+(self._$canvasH - self._imgCropSize)/2+self._imgCropSize)>=self._imgH){
                         return false;
                     }
-                    if(self._img_sy>(self._$canvasH - self._imgCropSize)/2){
+                    if(self._img_sy>=(self._$canvasH - self._imgCropSize)/2){
                         return false;
                     }
 
