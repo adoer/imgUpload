@@ -1,5 +1,5 @@
 # 图片剪裁上传
-> 基于canvas图片剪裁，并上传base64码。支持本地预览、移动、放大缩小等操作。
+> 基于canvas图片剪裁，并上传base64码。支持本地预览、拖动、放大缩小等操作。
 # 初始化
 ```javascript
     function saveCallBack(base64){
