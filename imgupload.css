@@ -1,16 +1,1 @@
-#imgBox {
-  position: relative;
-  cursor: move;
-  -moz-user-select: none;
-  -o-user-select: none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-#imgBox canvas {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
+#imgBox{position:relative;cursor:move;-moz-user-select:none;-o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none}#imgBox canvas{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
