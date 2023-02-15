@@ -31,4 +31,4 @@
 ```
 *内部代码注释详细可根据需要修改*
 # 演示地址
-[演示地址](http://www.xerduo.com/2017/09/11/imgUpload/)
+[演示地址](https://imgupload.duqing.ink/)
