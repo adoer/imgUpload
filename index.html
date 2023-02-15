@@ -1,66 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>imgupload</title>
     <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="imgupload.css">
-    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
     <!--<script src="jquery.min.js"></script>-->
 </head>
+
 <body>
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-8 col-md-offset-2">
-            <h2 class="bg-primary" style="margin: 0;padding: 6px;">imgUpload</h2>
-            <input id="inputBtn" type="file" class="btn btn-default" style="margin:10px 0; ">
-            <p class="text-muted" style="color: #8d8d8d;">鼠标滚动可放大缩小图片</p>
-            <div class="wrap clearfix">
-                <div class="left pull-left" style="margin-right: 10px;margin-bottom: 10px;">
-                    <div id="imgBox">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h2 class="bg-primary" style="margin: 0;padding: 6px;">imgUpload</h2>
+                <input id="inputBtn" type="file" class="btn btn-default" style="margin:10px 0; ">
+                <p class="text-muted" style="color: #8d8d8d;">鼠标滚动可放大缩小图片</p>
+                <div class="wrap clearfix">
+                    <div class="left pull-left" style="margin-right: 10px;margin-bottom: 10px;">
+                        <div id="imgBox">
+
+                        </div>
+                    </div>
+                    <div class="right pull-left" id="previewImgBox" style="width: 50%;">
 
                     </div>
                 </div>
-                <div class="right pull-left" id="previewImgBox" style="width: 50%;">
-
+                <button id="save" class="btn btn-default" style="margin: 10px 0;">保存预览</button>
+                <div id="base64">
+                    <img src="" alt="">
                 </div>
             </div>
-            <button id="save" class="btn btn-default" style="margin: 10px 0;">保存预览</button>
-            <div id="base64">
-                <img src="" alt="">
-            </div>
-        </div>
 
+        </div>
     </div>
-</div>
-<script src="imgupload.js"></script>
-<script>
-    function saveCallBack(base64){
-        $("#base64 img").attr("src",base64);
-        //最终把此base64传给后端
-        /**
-         $.ajax({
-				data: {
-					base64: base64
-				}
-			})
-         **/
-    }
-    //    初始化
-    var imgupload=new Imgupload({
-        //选择文件按钮id
-        uploadInputBtn:"#inputBtn",
-        //预览容器id
-        previewBox:"#previewImgBox",
-        //容纳图片的容器id
-        imgBox:"#imgBox",
-        //容纳图片的容器大小设置
-        imgBoxSize:350,
-        //图片剪裁区域大小校设置
-        imgCropSize:200,
-        //剪裁图片预览容器大小
-        previewBoxSize:200
-    },saveCallBack);
-</script>
+    <script src="imgupload.js"></script>
+    <script>
+        function saveCallBack(base64) {
+            $("#base64 img").attr("src", base64);
+            //最终把此base64传给后端
+            /**
+             $.ajax({
+                    data: {
+                        base64: base64
+                    }
+                })
+             **/
+        }
+        //    初始化
+        var imgupload = new Imgupload({
+            //选择文件按钮id
+            uploadInputBtn: "#inputBtn",
+            //预览容器id
+            previewBox: "#previewImgBox",
+            //容纳图片的容器id
+            imgBox: "#imgBox",
+            //容纳图片的容器大小设置
+            imgBoxSize: 350,
+            //图片剪裁区域大小校设置
+            imgCropSize: 200,
+            //剪裁图片预览容器大小
+            previewBoxSize: 200
+        }, saveCallBack);
+    </script>
 </body>
+
 </html>
